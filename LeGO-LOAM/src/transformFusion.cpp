@@ -185,7 +185,7 @@ public:
         double roll, pitch, yaw;
         geometry_msgs::Quaternion geoQuat = laserOdometry->pose.pose.orientation;
         tf::Matrix3x3(tf::Quaternion(geoQuat.z, -geoQuat.x, -geoQuat.y, geoQuat.w)).getRPY(roll, pitch, yaw);
-
+        // orientacao da laser odometry quaterniao + rpy
         transformSum[0] = -pitch;
         transformSum[1] = -yaw;
         transformSum[2] = roll;
@@ -193,7 +193,7 @@ public:
         transformSum[3] = laserOdometry->pose.pose.position.x;
         transformSum[4] = laserOdometry->pose.pose.position.y;
         transformSum[5] = laserOdometry->pose.pose.position.z;
-
+        // transformSum está a pegar na frame do laser e a pô-la para o robot
         transformAssociateToMap();
 
         geoQuat = tf::createQuaternionMsgFromRollPitchYaw
