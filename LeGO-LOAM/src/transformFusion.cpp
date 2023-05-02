@@ -53,6 +53,9 @@ private:
     tf::StampedTransform camera_2_base_link_Trans;
     tf::TransformBroadcaster tfBroadcasterCamera2Baselink;
 
+    tf::StampedTransform map1_to_map;
+    tf::TransformBroadcaster tfBroadcasterMap2Map;
+
     float transformSum[6];
     float transformIncre[6];
     float transformMapped[6];
@@ -77,6 +80,9 @@ public:
 
         map_2_camera_init_Trans.frame_id_ = "/map";
         map_2_camera_init_Trans.child_frame_id_ = "/camera_init";
+
+        map1_to_map.frame_id_ = "/map1";
+        map1_to_map.child_frame_id_  = "/map";
 
         camera_2_base_link_Trans.frame_id_ = "/camera";
         camera_2_base_link_Trans.child_frame_id_ = "/base_link";
