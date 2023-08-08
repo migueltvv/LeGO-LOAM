@@ -201,7 +201,6 @@ public:
         pubLaserCloudSurfLast = nh.advertise<sensor_msgs::PointCloud2>("/laser_cloud_surf_last", 2);
         pubOutlierCloudLast = nh.advertise<sensor_msgs::PointCloud2>("/outlier_cloud_last", 2);
         pubLaserOdometry = nh.advertise<nav_msgs::Odometry> ("/laser_odom_to_init", 5);
-        
         initializationValue();
     }
 
@@ -366,14 +365,14 @@ public:
     {
         float x1 = cos(imuRollCur) * p->x - sin(imuRollCur) * p->y;
         float y1 = sin(imuRollCur) * p->x + cos(imuRollCur) * p->y;
-        float z1 = p->z;
+        float z1 = p->z; //roll,sobre eixo z
 
-        float x2 = x1;
+        float x2 = x1;//pitch,sobre eixo x
         float y2 = cos(imuPitchCur) * y1 - sin(imuPitchCur) * z1;
         float z2 = sin(imuPitchCur) * y1 + cos(imuPitchCur) * z1;
 
         float x3 = cos(imuYawCur) * x2 + sin(imuYawCur) * z2;
-        float y3 = y2;
+        float y3 = y2;//yaw, eixo y
         float z3 = -sin(imuYawCur) * x2 + cos(imuYawCur) * z2;
 
         float x4 = cosImuYawStart * x3 - sinImuYawStart * z3;
@@ -640,7 +639,7 @@ public:
         }
     }
 
-    void markOccludedPoints()
+    void markOccludedPoints() // occluded - bloqueado
     {
         int cloudSize = segmentedCloud->points.size();
 

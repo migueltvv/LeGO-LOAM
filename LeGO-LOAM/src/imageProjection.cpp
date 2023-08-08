@@ -163,7 +163,7 @@ public:
     void copyPointCloud(const sensor_msgs::PointCloud2ConstPtr& laserCloudMsg){
 
         cloudHeader = laserCloudMsg->header;
-        cloudHeader.stamp = ros::Time::now(); // Ouster lidar users may need to uncomment this line
+        //cloudHeader.stamp = ros::Time::now(); // Ouster lidar users may need to uncomment this line
         pcl::fromROSMsg(*laserCloudMsg, *laserCloudIn);
         // Remove Nan points
         std::vector<int> indices;
@@ -215,12 +215,13 @@ public:
         PointType thisPoint;
 
         cloudSize = laserCloudIn->points.size();
-
+        
         for (size_t i = 0; i < cloudSize; ++i){
-
+            if (laserCloudIn->points[i].z < 10.1)  {
             thisPoint.x = laserCloudIn->points[i].x;
             thisPoint.y = laserCloudIn->points[i].y;
             thisPoint.z = laserCloudIn->points[i].z;
+            }
             // find the row and column index in the iamge for this point
             if (useCloudRing == true){
                 rowIdn = laserCloudInRing->points[i].ring;
@@ -469,39 +470,39 @@ public:
 
         pcl::toROSMsg(*outlierCloud, laserCloudTemp);
         laserCloudTemp.header.stamp = cloudHeader.stamp;
-        laserCloudTemp.header.frame_id = "base_link";
+        laserCloudTemp.header.frame_id = "base_link2";
         pubOutlierCloud.publish(laserCloudTemp);
         // segmented cloud with ground
         pcl::toROSMsg(*segmentedCloud, laserCloudTemp);
         laserCloudTemp.header.stamp = cloudHeader.stamp;
-        laserCloudTemp.header.frame_id = "base_link";
+        laserCloudTemp.header.frame_id = "base_link2";
         pubSegmentedCloud.publish(laserCloudTemp);
         // projected full cloud
         if (pubFullCloud.getNumSubscribers() != 0){
             pcl::toROSMsg(*fullCloud, laserCloudTemp);
             laserCloudTemp.header.stamp = cloudHeader.stamp;
-            laserCloudTemp.header.frame_id = "base_link";
+            laserCloudTemp.header.frame_id = "base_link2";
             pubFullCloud.publish(laserCloudTemp);
         }
         // original dense ground cloud
         if (pubGroundCloud.getNumSubscribers() != 0){
             pcl::toROSMsg(*groundCloud, laserCloudTemp);
             laserCloudTemp.header.stamp = cloudHeader.stamp;
-            laserCloudTemp.header.frame_id = "base_link";
+            laserCloudTemp.header.frame_id = "base_link2";
             pubGroundCloud.publish(laserCloudTemp);
         }
         // segmented cloud without ground
         if (pubSegmentedCloudPure.getNumSubscribers() != 0){
             pcl::toROSMsg(*segmentedCloudPure, laserCloudTemp);
             laserCloudTemp.header.stamp = cloudHeader.stamp;
-            laserCloudTemp.header.frame_id = "base_link";
+            laserCloudTemp.header.frame_id = "base_link2";
             pubSegmentedCloudPure.publish(laserCloudTemp);
         }
         // projected full cloud info
         if (pubFullInfoCloud.getNumSubscribers() != 0){
             pcl::toROSMsg(*fullInfoCloud, laserCloudTemp);
             laserCloudTemp.header.stamp = cloudHeader.stamp;
-            laserCloudTemp.header.frame_id = "base_link";
+            laserCloudTemp.header.frame_id = "base_link2";
             pubFullInfoCloud.publish(laserCloudTemp);
         }
     }

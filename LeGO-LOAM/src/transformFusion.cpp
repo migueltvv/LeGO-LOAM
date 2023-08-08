@@ -53,9 +53,6 @@ private:
     tf::StampedTransform camera_2_base_link_Trans;
     tf::TransformBroadcaster tfBroadcasterCamera2Baselink;
 
-    //tf::StampedTransform map1_to_map;
-    //tf::TransformBroadcaster tfBroadcasterMap2Map;
-
     float transformSum[6];
     float transformIncre[6];
     float transformMapped[6];
@@ -67,11 +64,17 @@ private:
 public:
 
     TransformFusion(){
+        
 
         pubLaserOdometry2 = nh.advertise<nav_msgs::Odometry> ("/integrated_to_init", 5);
-        subLaserOdometry = nh.subscribe<nav_msgs::Odometry>("/laser_odom_to_init", 5, &TransformFusion::laserOdometryHandler, this);
-        subOdomAftMapped = nh.subscribe<nav_msgs::Odometry>("/aft_mapped_to_init", 5, &TransformFusion::odomAftMappedHandler, this);
 
+        //subLaserOdometry = nh.subscribe<nav_msgs::Odometry>("/odometry/filtered", 5, &TransformFusion::laserOdometryHandler, this);
+
+        subLaserOdometry = nh.subscribe<nav_msgs::Odometry>("/localization", 5, &TransformFusion::laserOdometryHandler, this); //este funciona, no lugar do laser odom
+        //subLaserOdometry = nh.subscribe<nav_msgs::Odometry>("/laser_odom_to_init", 5, &TransformFusion::laserOdometryHandler, this);
+
+        subOdomAftMapped = nh.subscribe<nav_msgs::Odometry>("/aft_mapped_to_init", 5, &TransformFusion::odomAftMappedHandler, this);
+        
         laserOdometry2.header.frame_id = "/camera_init";
         laserOdometry2.child_frame_id = "/camera";
 
@@ -80,9 +83,6 @@ public:
 
         map_2_camera_init_Trans.frame_id_ = "/map";
         map_2_camera_init_Trans.child_frame_id_ = "/camera_init";
-
-        //map1_to_map.frame_id_ = "/map1";
-        //map1_to_map.child_frame_id_  = "/map";
 
         camera_2_base_link_Trans.frame_id_ = "/camera";
         camera_2_base_link_Trans.child_frame_id_ = "/base_link";
@@ -191,7 +191,7 @@ public:
         double roll, pitch, yaw;
         geometry_msgs::Quaternion geoQuat = laserOdometry->pose.pose.orientation;
         tf::Matrix3x3(tf::Quaternion(geoQuat.z, -geoQuat.x, -geoQuat.y, geoQuat.w)).getRPY(roll, pitch, yaw);
-        // orientacao da laser odometry quaterniao + rpy
+
         transformSum[0] = -pitch;
         transformSum[1] = -yaw;
         transformSum[2] = roll;
@@ -199,16 +199,16 @@ public:
         transformSum[3] = laserOdometry->pose.pose.position.x;
         transformSum[4] = laserOdometry->pose.pose.position.y;
         transformSum[5] = laserOdometry->pose.pose.position.z;
-        // transformSum está a pegar na frame do laser e a pô-la para o robot
+
         transformAssociateToMap();
 
         geoQuat = tf::createQuaternionMsgFromRollPitchYaw
                   (transformMapped[2], -transformMapped[0], -transformMapped[1]);
 
         laserOdometry2.header.stamp = laserOdometry->header.stamp;
-        laserOdometry2.pose.pose.orientation.x = -geoQuat.y;
-        laserOdometry2.pose.pose.orientation.y = -geoQuat.z;
-        laserOdometry2.pose.pose.orientation.z = geoQuat.x;
+        laserOdometry2.pose.pose.orientation.x = -geoQuat.y;//-y
+        laserOdometry2.pose.pose.orientation.y = -geoQuat.z;//-z
+        laserOdometry2.pose.pose.orientation.z = geoQuat.x;//x
         laserOdometry2.pose.pose.orientation.w = geoQuat.w;
         laserOdometry2.pose.pose.position.x = transformMapped[3];
         laserOdometry2.pose.pose.position.y = transformMapped[4];
